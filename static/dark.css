@@ -1,0 +1,113 @@
+body {
+    background-color: #373737;
+    color: white;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.cabinet {
+    display: flex;
+    flex-direction: column;
+}
+
+.cabinet-row {
+    display: flex;
+    height: 44px;
+    margin: 3px;
+}
+
+.cell {
+    position: relative;
+    display: flex;
+    justify-content: center;
+
+    background-color: #1c1c23;
+    border-radius: 5px;
+    width: 44px;
+    color: white;
+    margin: 3px;
+
+    font-family: 'Roboto';
+
+    animation-name: appear-vertical;
+    animation-fill-mode: both;
+    animation-duration: 0.5s;
+    animation-timing-function: cubic-bezier(0.85, 0, 0.15, 1);
+}
+
+.cell-text {
+    align-self: center;
+}
+
+.status-bar {
+    position: absolute;
+    bottom: 10%;
+
+    height: 3px;
+    border-radius: 1.5px;
+
+    animation-name: appear-horizontal;
+    animation-fill-mode: forwards;
+    animation-duration: 0.4s;
+    /* animation-delay: ; */
+    animation-timing-function: cubic-bezier(0.85, 0, 0.15, 1);
+}
+
+.status-good > div.status-bar {
+    background-color: #72fa93;
+}
+
+.status-down > div.status-bar {
+    background-color: #e45f2b;
+}
+
+.status-unknown-device > div.status-bar {
+    background-color: #f6c445;
+}
+
+.status-broken > div.status-bar {
+    background-color: #e39af0;
+}
+
+.status-misconfigured > div.status-bar {
+    background-color: #9ac1f0;
+}
+
+.status-good {
+    box-shadow: 0px 0px 3px #72fa93;
+}
+
+.status-down {
+    box-shadow: 0px 0px 3px #e45f2b;
+}
+
+.status-unknown-device {
+    box-shadow: 0px 0px 3px #f6c445;
+}
+
+.status-broken {
+    box-shadow: 0px 0px 3px #e39af0;
+}
+
+.status-misconfigured {
+    box-shadow: 0px 0px 3px #9ac1f0;
+}
+
+@keyframes appear-vertical {
+    from {
+        height: 0px;
+        font-size: 0;
+    }
+    to {
+        height: 100%;
+        font-size: larger;
+    }
+}
+
+@keyframes appear-horizontal {
+    from {
+        width: 0px;
+    }
+    to {
+        width: 66%;
+    }
+}
