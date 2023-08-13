@@ -1,5 +1,5 @@
 from reactpy import html
-from reactpy.backend.flask import configure, Options
+from reactpy.backend.flask import Options
 
 head = (
     html.title('Testing app'),
