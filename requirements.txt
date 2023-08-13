@@ -1,0 +1,11 @@
+reactpy
+uvicorn
+
+# If you want to run with Flask uncomment this
+flask
+flask_cors
+flask_sock
+
+# If you want to run with Sanic uncomment this
+# sanic
+# sanic_cors
