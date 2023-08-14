@@ -1,16 +1,34 @@
-from reactpy import component, html
+from typing import Tuple
+from threading import Thread
+
+from reactpy import component, html, use_state, use_ref
 import random
 
-STATUSES = ['good', 'down', 'unknown-device', 'broken', 'misconfigured']
+from css_utils import grid_position
 
-STATUS_BAR_DELAY_OFFSET = 0.17 # trust me on this one
+STATUSES = \
+    ['good'] * 20 + \
+    ['down'] * 2 + \
+    ['unknown-device'] * 5 + \
+    ['broken', 'misconfigured']
+
+STATUS_BAR_DELAY_OFFSET = 0.17  # trust me on this one
+
 
 @component
 def Base():
     return html.div(
-        html.h1('Visual Lab!'),
-        Cabinet(3, 5)
+        html.h1(
+            {'style': 'text-align: center; margin: 50px'},
+            'Visual Lab!'
+        ),
+        html.div(
+            {'style': 'display: flex; flex-direction: row;'
+                      'justify-content: center'},
+            *[Cabinet(x) for x in 'ABCDEFGH']
+        ),
     )
+
 
 @component
 def StatusBar(delay=0):
@@ -19,12 +37,14 @@ def StatusBar(delay=0):
          'style': f'animation-delay: {delay}s'}
     )
 
+
 @component
-def Cell(text: str = '', delay=0):
+def Cell(text: str = '', delay: int = 0, position: Tuple[int, int] = None):
     status = random.choice(STATUSES)
+    position_style = '' if position is None else grid_position(*position)
     return html.div(
         {'class_name': f'cell status-{status}',
-         'style': f'animation-delay: {delay}s;'},
+         'style': f'animation-delay: {delay}s; {position_style}'},
         html.div(
             {'class_name': 'cell-text '},
             text
@@ -34,15 +54,55 @@ def Cell(text: str = '', delay=0):
 
 
 @component
-def Line(items):
-    return html.div({'class_name': 'cabinet-row'}, *items)
+def CabinetHeader(name):
+    return html.div(
+        {
+            'class_name': 'cabinet-header',
+            'style': f'display: inherit; {grid_position(1, 1, width=3)}'
+        },
+        html.div(
+            {'class_name': 'cell-text '},
+            name
+        )
+    )
+
+
+def make_cells(width, height, set_cells, should_delay):
+    from time import sleep
+    if should_delay:
+        sleep(random.random() * 2 + 1)
+    else:
+        sleep(random.random() * 0.5)
+
+    cells = []
+    for y in range(height):
+        for x in range(width):
+            text = str(1 + 3 * y + x)
+            delay = 0.05 * (5/3 * x + y)
+            position = (x + 1, y + 2)
+            cells.append(
+                Cell(text, delay, position)
+            )
+    set_cells(cells)
 
 
 @component
-def Cabinet(width, height):
+def Cabinet(title, width=3, height=5):
+    cells, set_cells = use_state([])
+
+    is_first = use_ref(True)
+
+    if is_first.current:
+        is_first.current = False
+
+        worker = Thread(
+            target=make_cells,
+            args=(width, height, set_cells, title in 'GH')
+        )
+        worker.start()
+
     return html.div(
         {'class_name': 'cabinet'},
-        *(
-            Line([Cell(str(1 + y * 3 + x), 0.05 * (x + y)) for x in range(width)]) for y in range(height)
-        )
+        CabinetHeader(title),
+        *cells
     )
