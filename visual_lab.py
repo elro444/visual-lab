@@ -6,6 +6,8 @@ import random
 
 from css_utils import grid_position
 
+from fixer import Button, Tooltip
+
 STATUSES = \
     ['good'] * 20 + \
     ['down'] * 2 + \
@@ -31,26 +33,32 @@ def Base():
 
 
 @component
-def StatusBar(delay=0):
-    return html.div(
-        {'class_name': 'status-bar',
-         'style': f'animation-delay: {delay}s'}
-    )
-
-
-@component
 def Cell(text: str = '', delay: int = 0, position: Tuple[int, int] = None):
     status = random.choice(STATUSES)
-    position_style = '' if position is None else grid_position(*position)
-    return html.div(
-        {'class_name': f'cell status-{status}',
-         'style': f'animation-delay: {delay}s; {position_style}'},
+    position_style = {} if position is None else grid_position(*position)
+    status_bar_delay = STATUS_BAR_DELAY_OFFSET + delay
+
+    return Tooltip({
+            "title": "Connected is ID 9999",
+            "arrow": True
+        }, html.div(
+        {
+        'class_name': f'cell status-{status}',
+         'style': {'animation-delay': f'{delay}s', **position_style}
+         },
         html.div(
             {'class_name': 'cell-text '},
             text
         ),
-        StatusBar(STATUS_BAR_DELAY_OFFSET + delay)
-    )
+        # This is a status bar
+        # Somewhy components don't work inside a Tooltip,
+        # So I had to place here only <div>s
+        html.div(
+            {'class_name': 'status-bar',
+             'style': {'animation-delay': f'{status_bar_delay}s'}
+             }
+        )
+    ))
 
 
 @component
@@ -58,7 +66,7 @@ def CabinetHeader(name):
     return html.div(
         {
             'class_name': 'cabinet-header',
-            'style': f'display: inherit; {grid_position(1, 1, width=3)}'
+            'style': {'display': 'inherit', **grid_position(1, 1, width=3)}
         },
         html.div(
             {'class_name': 'cell-text '},
