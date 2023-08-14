@@ -3,6 +3,7 @@ from threading import Thread
 
 from reactpy import component, html, use_state, use_ref
 import random
+from dnd import DraggableItem, ExampleTarget, CustomDndProvider
 
 from css_utils import grid_position
 
@@ -15,6 +16,16 @@ STATUSES = \
 STATUS_BAR_DELAY_OFFSET = 0.17  # trust me on this one
 
 
+# (item, monitor) => {
+#       const dropResult = monitor.getDropResult()
+#       if (item && dropResult) {
+#         alert(`You dropped ${item.name} into ${dropResult.name}!`)
+#       }
+#     }
+
+def drop_end(item, monitor):
+    print("Dropped!", item, monitor)
+
 @component
 def Base():
     return html.div(
@@ -26,6 +37,13 @@ def Base():
             {'style': 'display: flex; flex-direction: row;'
                       'justify-content: center'},
             *[Cabinet(x) for x in 'ABCDEFGH']
+        ),
+        CustomDndProvider({}, 
+            ExampleTarget(),
+            DraggableItem(
+                {'drop_end': drop_end,
+                'name': "HI"}
+            ),
         ),
     )
 

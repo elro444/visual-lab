@@ -1,0 +1,3 @@
+[submodule "reactpy-dnd"]
+	path = reactpy-dnd
+	url = git@github.com:shaymargolis/reactpy-dnd.git
