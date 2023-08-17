@@ -1,7 +1,7 @@
 from typing import Tuple
 from threading import Thread
 
-from reactpy import component, html, use_state, use_ref
+from reactpy import component, html, use_state, use_ref, web
 import random
 
 from css_utils import grid_position
@@ -14,6 +14,14 @@ STATUSES = \
 
 STATUS_BAR_DELAY_OFFSET = 0.17  # trust me on this one
 
+mui = web.module_from_template(
+    "react@18.2.0",
+    "material-ui-core@5.0.1",
+    fallback="⌛",
+    cdn='http://localhost:9999/npm',
+)
+
+Tooltip = web.export(mui, "Tooltip")
 
 @component
 def Base():
@@ -25,7 +33,12 @@ def Base():
         html.div(
             {'style': 'display: flex; flex-direction: row;'
                       'justify-content: center'},
-            *[Cabinet(x) for x in 'ABCDEFGH']
+            Tooltip(
+                {'title': 'what?'},
+                html.div('Hi there!')
+            ),
+            # html.div({'data-toggle': 'tooltip', 'data-placement': 'left', 'title': 'Woohoo!'}, 'Hi there!')
+            # *[Cabinet(x) for x in 'ABCDEFGH']
         ),
     )
 
