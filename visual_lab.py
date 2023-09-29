@@ -1,9 +1,10 @@
+import random
 from typing import Tuple
 from threading import Thread
 
 from reactpy import component, html, use_state, use_ref
-import random
 
+from tooltip import Tooltip
 from css_utils import grid_position
 
 from fixer import Button, Tooltip
@@ -13,6 +14,14 @@ STATUSES = \
     ['down'] * 2 + \
     ['unknown-device'] * 5 + \
     ['broken', 'misconfigured']
+
+COLORS = {
+    'good': '#72fa93',
+    'down': '#e45f2b',
+    'unknown-device': '#f6c445',
+    'broken': '#e39af0',
+    'misconfigured': '#9ac1f0',
+}
 
 STATUS_BAR_DELAY_OFFSET = 0.17  # trust me on this one
 
@@ -33,32 +42,36 @@ def Base():
 
 
 @component
-def Cell(text: str = '', delay: int = 0, position: Tuple[int, int] = None):
-    status = random.choice(STATUSES)
-    position_style = {} if position is None else grid_position(*position)
-    status_bar_delay = STATUS_BAR_DELAY_OFFSET + delay
+def StatusBar(delay=0):
+    return html.div(
+        {'class_name': 'status-bar',
+         'style': f'animation-delay: {delay}s'}
+    )
 
-    return Tooltip({
-            "title": "Connected is ID 9999",
-            "arrow": True
-        }, html.div(
-        {
-        'class_name': f'cell status-{status}',
-         'style': {'animation-delay': f'{delay}s', **position_style}
-         },
+
+@component
+def Cell(cabinet: str, text: str = '', delay: int = 0, position: Tuple[int, int] = None):
+    status = random.choice(STATUSES)
+    position_style = '' if position is None else grid_position(*position)
+
+    tooltip = html.div(
+        {'style': {'width': '130px'}},
+        f"Device at {cabinet}-{text} has status ",
+        html.span(
+            {'style': {'color': COLORS[status]}},
+            status
+        )
+    )
+    cell = html.div(
+        {'class_name': f'cell status-{status}',
+         'style': f'animation-delay: {delay}s; {position_style}'},
         html.div(
-            {'class_name': 'cell-text '},
+            {'class_name': 'cell-text'},
             text
         ),
-        # This is a status bar
-        # Somewhy components don't work inside a Tooltip,
-        # So I had to place here only <div>s
-        html.div(
-            {'class_name': 'status-bar',
-             'style': {'animation-delay': f'{status_bar_delay}s'}
-             }
-        )
-    ))
+        StatusBar(STATUS_BAR_DELAY_OFFSET + delay)
+    )
+    return Tooltip(tooltip, hoverables=[cell])
 
 
 @component
@@ -75,7 +88,7 @@ def CabinetHeader(name):
     )
 
 
-def make_cells(width, height, set_cells, should_delay):
+def make_cells(cabinet_title, width, height, set_cells, should_delay):
     from time import sleep
     if should_delay:
         sleep(random.random() * 2 + 1)
@@ -85,11 +98,11 @@ def make_cells(width, height, set_cells, should_delay):
     cells = []
     for y in range(height):
         for x in range(width):
-            text = str(1 + 3 * y + x)
-            delay = 0.05 * (5/3 * x + y)
+            text = str(1 + width * y + x)
+            delay = 0.05 * (height/width * x + y)
             position = (x + 1, y + 2)
             cells.append(
-                Cell(text, delay, position)
+                Cell(cabinet_title, text, delay, position)
             )
     set_cells(cells)
 
@@ -105,7 +118,7 @@ def Cabinet(title, width=3, height=5):
 
         worker = Thread(
             target=make_cells,
-            args=(width, height, set_cells, title in 'GH')
+            args=(title, width, height, set_cells, title in 'GH')
         )
         worker.start()
 

@@ -7,7 +7,6 @@ from reactpy.backend.flask import configure
 from visual_lab import Base
 
 
-
 app = Flask(__name__)
 
 configure(app, Base, options=g_options)
