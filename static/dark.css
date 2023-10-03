@@ -116,10 +116,7 @@ body {
     background-color: #101014;
     box-shadow: 0px 0px 3px #0f0f11;
     position: absolute;
-    left: 100%;
-    top: 50%;
-    margin-left: 10px;
-    margin-top: -50%;
+    left: -100%;
     padding: 10px;
     z-index: 1;
 }
