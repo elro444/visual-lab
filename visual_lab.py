@@ -7,8 +7,6 @@ from reactpy import component, html, use_state, use_ref
 from tooltip import Tooltip
 from css_utils import grid_position
 
-from fixer import Button, Tooltip
-
 STATUSES = \
     ['good'] * 20 + \
     ['down'] * 2 + \
