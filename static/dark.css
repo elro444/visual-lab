@@ -33,12 +33,6 @@ body {
     box-shadow: 0px 0px 3px #0f0f11;
 }
 
-.cabinet-row {
-    display: flex;
-    height: 44px;
-    margin: 3px;
-}
-
 .cell {
     position: relative;
     display: flex;
@@ -47,6 +41,7 @@ body {
     background-color: #1c1c23;
     border-radius: 5px;
     width: 44px;
+    height: 44px;
     color: white;
     margin: 3px;
 
