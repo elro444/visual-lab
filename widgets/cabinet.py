@@ -1,8 +1,8 @@
 import random
-from threading import Thread
+import asyncio
 
 from reactpy import html, component
-from reactpy.core.hooks import use_state, use_ref
+from reactpy.core.hooks import use_state, use_ref, use_effect
 
 from css_utils import grid_position
 from .cell import CellWrapper
@@ -21,41 +21,34 @@ def CabinetHeader(name):
         )
     )
 
-
-def make_cells(cabinet_title, width, height, set_cells, should_delay):
-    from time import sleep
-    if should_delay:
-        sleep(random.random() * 2 + 1)
-    else:
-        sleep(random.random() * 0.5)
-
-    cells = []
-    for y in range(height):
-        for x in range(width):
-            text = str(1 + width * y + x)
-            delay = 0.05 * (height/width * x + y)
-            position = (x + 1, y + 2)
-            status = random.choice(STATUSES)
-            cells.append(
-                CellWrapper(cabinet_title, text, status, delay, position)
-            )
-    set_cells(cells)
-
-
 @component
 def Cabinet(title, width=3, height=5):
     cells, set_cells = use_state([])
+    is_first_render = use_ref(True)
 
-    is_first = use_ref(True)
+    @use_effect(dependencies=[])
+    async def effect():
+        # Fetch the data in the background
+        is_first_render.current = False
 
-    if is_first.current:
-        is_first.current = False
+        # Simulate fetching delay for some of the cabinets
+        should_delay = (title in 'GH')
+        if should_delay:
+            await asyncio.sleep(random.random() * 2 + 1)
+        else:
+            await asyncio.sleep(random.random() * 0.5)
 
-        worker = Thread(
-            target=make_cells,
-            args=(title, width, height, set_cells, title in 'GH')
-        )
-        worker.start()
+        cells = []
+        for y in range(height):
+            for x in range(width):
+                text = str(1 + width * y + x)
+                delay = 0.05 * (height/width * x + y)
+                position = (x + 1, y + 2)
+                status = random.choice(STATUSES)
+                cells.append(
+                    CellWrapper(title, text, status, delay, position)
+                )
+        set_cells(cells)
 
     return html.div(
         {'class_name': 'cabinet'},
