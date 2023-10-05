@@ -1,7 +1,7 @@
 from typing import Tuple, Callable
 from dataclasses import dataclass
 
-from reactpy import html, component, use_state, use_effect, use_ref, Ref
+from reactpy import html, component, use_effect, use_ref, Ref
 
 from css_utils import grid_position
 from .tooltip import Tooltip
@@ -21,6 +21,10 @@ class CellDetails:
     position: Tuple[int, int]  # Position (x,y) in the cabinet
     status: str
     delay: float
+    show_popup: bool
+    show_tooltip: bool
+    on_click: Callable[[], None]
+    on_hover: Callable[[bool], None]
 
 
 @component
@@ -37,7 +41,7 @@ def StatusBar(delay: float, should_animate: bool):
 
 
 @component
-def Cell(details: CellDetails, should_animate: Ref, set_is_hovered):
+def Cell(details: CellDetails, should_animate: Ref):
     if details.position is None:
         position_style = ''
     else:
@@ -51,8 +55,9 @@ def Cell(details: CellDetails, should_animate: Ref, set_is_hovered):
         {
             'class_name': ' '.join(classes),
             'style': f'animation-delay: {details.delay}s; {position_style}',
-            'onmouseenter': lambda *_: set_is_hovered(True),
-            'onmouseleave': lambda *_: set_is_hovered(False),
+            'onmouseenter': lambda *_: details.on_hover(True),
+            'onmouseleave': lambda *_: details.on_hover(False),
+            'onclick': lambda *_: details.on_click(),
         },
         html.div(
             {'class_name': 'cell-text'},
@@ -85,16 +90,15 @@ def CellWrapper(cell_details: CellDetails):
     This way, reactpy knows the change is only in the CellWrapper and Tooltip,
     and not in the Cell itself, so it is not re-rendered :)
     """
-    is_hovered, set_is_hovered = use_state(False)
-
     should_animate: Ref = use_ref(True)
     @use_effect(dependencies=[])
     async def effect():
         # Disable the animations after the first render
         should_animate.current = False
 
-    cell = Cell(cell_details, should_animate, set_is_hovered)
+    cell = Cell(cell_details, should_animate)
 
-    if not is_hovered:
-        return cell
-    return CellTooltip(cell_details, hoverables=[cell])
+    if cell_details.show_tooltip:
+        return CellTooltip(cell_details, hoverables=[cell])
+
+    return cell
