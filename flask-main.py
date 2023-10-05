@@ -4,10 +4,10 @@ from flask import Flask
 from options import g_options
 from reactpy.backend.flask import configure
 
-from visual_lab import Base
+from visual_lab import VisualLab
 
 
 app = Flask(__name__)
 
-configure(app, Base, options=g_options)
+configure(app, VisualLab, options=g_options)
 app.run('0.0.0.0', 8000, debug=True, )

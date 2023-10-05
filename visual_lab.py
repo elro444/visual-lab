@@ -4,7 +4,7 @@ from widgets.cabinet import Cabinet
 
 
 @component
-def Base():
+def VisualLab():
     return html.div(
         html.h1(
             {'style': 'text-align: center; margin: 50px'},
