@@ -1,4 +1,5 @@
-from typing import Tuple
+from typing import Tuple, Callable
+from dataclasses import dataclass
 
 from reactpy import html, component, use_state, use_effect, use_ref, Ref
 
@@ -7,6 +8,19 @@ from .tooltip import Tooltip
 from consts import COLORS
 
 STATUS_BAR_DELAY_OFFSET = 0.17  # trust me on this one
+
+
+@dataclass(frozen=True)
+class CellDetails:
+    """
+    An immutable helper class to hold all the details about a cell.
+    Simplifies agument passing all over the place.
+    """
+    cabinet: str
+    number: int
+    position: Tuple[int, int]  # Position (x,y) in the cabinet
+    status: str
+    delay: float
 
 
 @component
@@ -23,44 +37,47 @@ def StatusBar(delay: float, should_animate: bool):
 
 
 @component
-def Cell(status: str, text: str, delay: int, position: Tuple[int, int], should_animate: Ref, set_is_hovered):
-    position_style = '' if position is None else grid_position(*position)
+def Cell(details: CellDetails, should_animate: Ref, set_is_hovered):
+    if details.position is None:
+        position_style = ''
+    else:
+        position_style = grid_position(*details.position)
 
-    classes = ['cell', f'status-{status}']
+    classes = ['cell', f'status-{details.status}']
     if should_animate.current:
         classes.append('cell-animation')
 
     cell = html.div(
         {
             'class_name': ' '.join(classes),
-            'style': f'animation-delay: {delay}s; {position_style}',
+            'style': f'animation-delay: {details.delay}s; {position_style}',
             'onmouseenter': lambda *_: set_is_hovered(True),
             'onmouseleave': lambda *_: set_is_hovered(False),
         },
         html.div(
             {'class_name': 'cell-text'},
-            text
+            details.number
         ),
-        StatusBar(STATUS_BAR_DELAY_OFFSET + delay, should_animate.current)
+        StatusBar(STATUS_BAR_DELAY_OFFSET + details.delay, should_animate.current)
     )
     return cell
 
 
 @component
-def CellTooltip(cabinet, text, status, hoverables):
+def CellTooltip(details: CellDetails, hoverables):
     tooltip = html.div(
         {'style': {'width': '130px'}},
-        f"Device at {cabinet}-{text} has status ",
+        f"Device at {details.cabinet}-{details.number} has status ",
         html.span(
-            {'style': {'color': COLORS[status]}},
-            status
+            {'style': {'color': COLORS[details.status]}},
+            details.status,
         )
     )
     return Tooltip(tooltip, hoverables)
 
 
 @component
-def CellWrapper(cabinet: str, text: str, status: str, delay: int = 0, position: Tuple[int, int] = None):
+def CellWrapper(cell_details: CellDetails):
     """
     We need this wrapper because if the state is created inside the Cell
     component, each change to it will trigger a render for the cell
@@ -76,8 +93,8 @@ def CellWrapper(cabinet: str, text: str, status: str, delay: int = 0, position: 
         # Disable the animations after the first render
         should_animate.current = False
 
-    cell = Cell(status, text, delay, position, should_animate, set_is_hovered)
+    cell = Cell(cell_details, should_animate, set_is_hovered)
 
     if not is_hovered:
         return cell
-    return CellTooltip(cabinet, text, status, hoverables=[cell])
+    return CellTooltip(cell_details, hoverables=[cell])

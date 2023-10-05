@@ -5,7 +5,7 @@ from reactpy import html, component
 from reactpy.core.hooks import use_state, use_ref, use_effect
 
 from css_utils import grid_position
-from .cell import CellWrapper
+from .cell import CellWrapper, CellDetails
 from consts import STATUSES
 
 @component
@@ -41,12 +41,16 @@ def Cabinet(title, width=3, height=5):
         cells = []
         for y in range(height):
             for x in range(width):
-                text = str(1 + width * y + x)
-                delay = 0.05 * (height/width * x + y)
-                position = (x + 1, y + 2)
-                status = random.choice(STATUSES)
+                details = CellDetails(
+                    cabinet=title,
+                    number=(1 + width * y + x),  # Starting from 1 at the top left,
+                    position=(x + 1, y + 2),
+                    status=random.choice(STATUSES),
+                    delay=(0.05 * (height / width * x + y)),
+                )
+
                 cells.append(
-                    CellWrapper(title, text, status, delay, position)
+                    CellWrapper(details)
                 )
         set_cells(cells)
 
