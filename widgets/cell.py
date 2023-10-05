@@ -26,11 +26,6 @@ def StatusBar(delay: float, should_animate: bool):
 def Cell(status: str, text: str, delay: int, position: Tuple[int, int], should_animate: Ref, set_is_hovered):
     position_style = '' if position is None else grid_position(*position)
 
-    @use_effect(dependencies=[])
-    async def effect():
-        # Disable the animations after the first render
-        should_animate.current = False
-
     classes = ['cell', f'status-{status}']
     if should_animate.current:
         classes.append('cell-animation')
@@ -76,6 +71,11 @@ def CellWrapper(cabinet: str, text: str, status: str, delay: int = 0, position: 
     is_hovered, set_is_hovered = use_state(False)
 
     should_animate: Ref = use_ref(True)
+    @use_effect(dependencies=[])
+    async def effect():
+        # Disable the animations after the first render
+        should_animate.current = False
+
     cell = Cell(status, text, delay, position, should_animate, set_is_hovered)
 
     if not is_hovered:
