@@ -5,7 +5,8 @@ from reactpy import html, component
 from reactpy.core.hooks import use_state, use_ref
 
 from css_utils import grid_position
-from .cell import Cell
+from .cell import CellWrapper
+from consts import STATUSES
 
 @component
 def CabinetHeader(name):
@@ -34,8 +35,9 @@ def make_cells(cabinet_title, width, height, set_cells, should_delay):
             text = str(1 + width * y + x)
             delay = 0.05 * (height/width * x + y)
             position = (x + 1, y + 2)
+            status = random.choice(STATUSES)
             cells.append(
-                Cell(cabinet_title, text, delay, position)
+                CellWrapper(cabinet_title, text, status, delay, position)
             )
     set_cells(cells)
 
