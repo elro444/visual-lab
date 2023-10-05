@@ -8,7 +8,7 @@ from reactpy import html, component
 from reactpy.core.hooks import use_state, use_ref, use_effect
 
 from css_utils import grid_position
-from .cell import CellWrapper, CellDetails
+from .cell import Cell, CellDetails
 from consts import STATUSES
 
 
@@ -75,7 +75,7 @@ def Cabinet(details: CabinetDetails):
                 )
 
                 cells.append(
-                    CellWrapper(cell_details)
+                    Cell(cell_details)
                 )
 
     return html.div(

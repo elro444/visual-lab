@@ -41,7 +41,14 @@ def StatusBar(delay: float, should_animate: bool):
 
 
 @component
-def Cell(details: CellDetails, should_animate: Ref):
+def Cell(details: CellDetails):
+    should_animate: Ref = use_ref(True)
+
+    @use_effect(dependencies=[])
+    async def effect():
+        # Disable the animations after the first render
+        should_animate.current = False
+
     if details.position is None:
         position_style = ''
     else:
@@ -65,6 +72,9 @@ def Cell(details: CellDetails, should_animate: Ref):
         ),
         StatusBar(STATUS_BAR_DELAY_OFFSET + details.delay, should_animate.current)
     )
+
+    if details.show_tooltip:
+        return CellTooltip(details, hoverables=[cell])
     return cell
 
 
@@ -79,26 +89,3 @@ def CellTooltip(details: CellDetails, hoverables):
         )
     )
     return Tooltip(tooltip, hoverables)
-
-
-@component
-def CellWrapper(cell_details: CellDetails):
-    """
-    We need this wrapper because if the state is created inside the Cell
-    component, each change to it will trigger a render for the cell
-    itself, which will trigger the css animations again..
-    This way, reactpy knows the change is only in the CellWrapper and Tooltip,
-    and not in the Cell itself, so it is not re-rendered :)
-    """
-    should_animate: Ref = use_ref(True)
-    @use_effect(dependencies=[])
-    async def effect():
-        # Disable the animations after the first render
-        should_animate.current = False
-
-    cell = Cell(cell_details, should_animate)
-
-    if cell_details.show_tooltip:
-        return CellTooltip(cell_details, hoverables=[cell])
-
-    return cell
