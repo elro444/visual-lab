@@ -16,4 +16,3 @@ def Base():
             *[Cabinet(x) for x in 'ABCDEFGH']
         ),
     )
-
