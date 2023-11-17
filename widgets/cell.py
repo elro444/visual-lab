@@ -1,7 +1,7 @@
 from typing import Tuple, Callable
 from dataclasses import dataclass
 
-from reactpy import html, component, use_effect, use_ref, Ref
+from reactpy import html, component, use_effect, use_ref, Ref, event
 
 from css_utils import grid_position
 from .tooltip import Tooltip
@@ -62,9 +62,9 @@ def Cell(details: CellDetails):
         {
             'class_name': ' '.join(classes),
             'style': f'animation-delay: {details.delay}s; {position_style}',
-            'onmouseenter': lambda *_: details.on_hover(True),
-            'onmouseleave': lambda *_: details.on_hover(False),
-            'onclick': lambda *_: details.on_click(),
+            'onmouseenter': lambda _: details.on_hover(True),
+            'onmouseleave': lambda _: details.on_hover(False),
+            'onclick': event(lambda _: details.on_click(), stop_propagation=True),
         },
         html.div(
             {'class_name': 'cell-text'},
@@ -73,7 +73,7 @@ def Cell(details: CellDetails):
         StatusBar(STATUS_BAR_DELAY_OFFSET + details.delay, should_animate.current)
     )
 
-    if details.show_tooltip:
+    if details.show_tooltip or details.show_popup:
         return CellTooltip(details, hoverables=[cell])
     return cell
 
