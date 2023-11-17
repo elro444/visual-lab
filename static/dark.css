@@ -1,4 +1,17 @@
+html {
+    height: 100%;
+}
+
 body {
+    height: 100%;
+}
+
+div#app {
+    height: 100%;
+}
+
+.visual-lab {
+    height: 100%;
     background-color: #373737;
     color: white;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -33,12 +46,6 @@ body {
     box-shadow: 0px 0px 3px #0f0f11;
 }
 
-.cabinet-row {
-    display: flex;
-    height: 44px;
-    margin: 3px;
-}
-
 .cell {
     position: relative;
     display: flex;
@@ -47,11 +54,16 @@ body {
     background-color: #1c1c23;
     border-radius: 5px;
     width: 44px;
+    height: 44px;
     color: white;
     margin: 3px;
 
     font-family: 'Roboto';
+    font-size: larger;
 
+}
+
+.cell-animation {
     animation-name: appear-vertical;
     animation-fill-mode: both;
     animation-duration: 0.5s;
@@ -67,12 +79,15 @@ body {
     bottom: 10%;
 
     height: 3px;
+    width: 66%;
     border-radius: 1.5px;
+}
 
+.status-bar-animation {
+    width: 0%;
     animation-name: appear-horizontal;
     animation-fill-mode: forwards;
     animation-duration: 0.4s;
-    /* animation-delay: ; */
     animation-timing-function: cubic-bezier(0.85, 0, 0.15, 1);
 }
 
@@ -114,6 +129,16 @@ body {
 
 .status-misconfigured {
     box-shadow: 0px 0px 3px #9ac1f0;
+}
+
+.vl-tooltip {
+    border-radius: 5px;
+    background-color: #101014;
+    box-shadow: 0px 0px 3px #0f0f11;
+    position: absolute;
+    left: -100%;
+    padding: 10px;
+    z-index: 1;
 }
 
 @keyframes appear-vertical {

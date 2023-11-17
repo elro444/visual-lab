@@ -4,13 +4,13 @@ from sanic import Sanic
 
 from reactpy.backend.sanic import configure
 
-from visual_lab import Base
+from visual_lab import VisualLab
 from options import g_options
 from fetch_data import fetch_data_periodic
 
 def main():
     app = Sanic("MyApp")
-    configure(app, Base, options=g_options)
+    configure(app, VisualLab, options=g_options)
     app.static("/static", "./static")
     app.add_task(fetch_data_periodic())
 

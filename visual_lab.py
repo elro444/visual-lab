@@ -1,116 +1,88 @@
-from typing import Tuple
-from threading import Thread
+from dataclasses import dataclass
+from typing import Optional, Callable, Tuple
+from functools import partial
+import traceback
 
-from reactpy import component, html, use_state, use_ref
-import random
+from reactpy import component, html, use_state, event
 
-from css_utils import grid_position
-
-from fixer import Button, Tooltip
-
-STATUSES = \
-    ['good'] * 20 + \
-    ['down'] * 2 + \
-    ['unknown-device'] * 5 + \
-    ['broken', 'misconfigured']
-
-STATUS_BAR_DELAY_OFFSET = 0.17  # trust me on this one
+from widgets import cabinet
 
 
-@component
-def Base():
-    return html.div(
-        html.h1(
-            {'style': 'text-align: center; margin: 50px'},
-            'Visual Lab!'
-        ),
-        html.div(
-            {'style': 'display: flex; flex-direction: row;'
-                      'justify-content: center'},
-            *[Cabinet(x) for x in 'ABCDEFGH']
-        ),
-    )
+@dataclass
+class LabState:
+    focused_cell: Optional[str]
+    set_focused_cell: Callable[[Optional[str]], None]
+    hovered_cell: Optional[str]
+    set_hovered_cell: Callable[[Optional[str]], None]
+
+
+def get_titles():
+    return [x for x in 'ABCDEFGH']
+
+
+def parse_cell_id(cell_id: Optional[str]) -> Tuple[Optional[str], Optional[int]]:
+    if cell_id is None:
+        cabinet, number = None, None
+    else:
+        cabinet, number = cell_id.split('-')
+        number = int(number)
+    return cabinet, number
 
 
 @component
-def Cell(text: str = '', delay: int = 0, position: Tuple[int, int] = None):
-    status = random.choice(STATUSES)
-    position_style = {} if position is None else grid_position(*position)
-    status_bar_delay = STATUS_BAR_DELAY_OFFSET + delay
+def VisualLab():
+    # "Focused" is when we click on the cell and it shows the popup
+    focused_cell, set_focused_cell = use_state(None)
+    focused_cell_cabinet, focused_cell_number = parse_cell_id(focused_cell)
 
-    return Tooltip({
-            "title": "Connected is ID 9999",
-            "arrow": True
-        }, html.div(
-        {
-        'class_name': f'cell status-{status}',
-         'style': {'animation-delay': f'{delay}s', **position_style}
-         },
-        html.div(
-            {'class_name': 'cell-text '},
-            text
-        ),
-        # This is a status bar
-        # Somewhy components don't work inside a Tooltip,
-        # So I had to place here only <div>s
-        html.div(
-            {'class_name': 'status-bar',
-             'style': {'animation-delay': f'{status_bar_delay}s'}
-             }
+    # "Hovered" is when we hover on the cell and it shows the tooltip (unless it is focused)
+    hovered_cell, set_hovered_cell = use_state(None)
+    hovered_cell_cabinet, hovered_cell_number = parse_cell_id(hovered_cell)
+
+    def on_hover(title: str, cell_number: int, is_hovered: bool):
+        if is_hovered:
+            set_hovered_cell(f'{title}-{cell_number}')
+        else:
+            set_hovered_cell(None)
+    def on_click(title: str, cell_number: int):
+        set_focused_cell(f'{title}-{cell_number}')
+
+    cabinets = []
+    for title in get_titles():
+        passed_focused_cell = None
+        if focused_cell_cabinet == title:
+            passed_focused_cell = focused_cell_number
+
+        passed_hovered_cell = None
+        if hovered_cell_cabinet == title:
+            passed_hovered_cell = hovered_cell_number
+
+        details = cabinet.CabinetDetails(
+            title=title,
+            focused_cell=passed_focused_cell,
+            hovered_cell=passed_hovered_cell,
+            on_click=partial(on_click, title),
+            on_hover=partial(on_hover, title),
         )
-    ))
+        cabinets.append(cabinet.Cabinet(details))
 
+    def clear_focused_cell(_):
+        set_focused_cell(None)
 
-@component
-def CabinetHeader(name):
     return html.div(
         {
-            'class_name': 'cabinet-header',
-            'style': {'display': 'inherit', **grid_position(1, 1, width=3)}
+            'class_name': 'visual-lab',
+            'onclick': clear_focused_cell,
         },
         html.div(
-            {'class_name': 'cell-text '},
-            name
+            html.h1(
+                {'style': 'text-align: center; padding: 50px'},
+                'Visual Lab!'
+            ),
+            html.div(
+                {'style': 'display: flex; flex-direction: row;'
+                        'justify-content: center'},
+                *cabinets,
+            ),
         )
-    )
-
-
-def make_cells(width, height, set_cells, should_delay):
-    from time import sleep
-    if should_delay:
-        sleep(random.random() * 2 + 1)
-    else:
-        sleep(random.random() * 0.5)
-
-    cells = []
-    for y in range(height):
-        for x in range(width):
-            text = str(1 + 3 * y + x)
-            delay = 0.05 * (5/3 * x + y)
-            position = (x + 1, y + 2)
-            cells.append(
-                Cell(text, delay, position)
-            )
-    set_cells(cells)
-
-
-@component
-def Cabinet(title, width=3, height=5):
-    cells, set_cells = use_state([])
-
-    is_first = use_ref(True)
-
-    if is_first.current:
-        is_first.current = False
-
-        worker = Thread(
-            target=make_cells,
-            args=(width, height, set_cells, title in 'GH')
-        )
-        worker.start()
-
-    return html.div(
-        {'class_name': 'cabinet'},
-        CabinetHeader(title),
-        *cells
     )
