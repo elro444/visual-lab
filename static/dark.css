@@ -1,4 +1,17 @@
+html {
+    height: 100%;
+}
+
 body {
+    height: 100%;
+}
+
+div#app {
+    height: 100%;
+}
+
+.visual-lab {
+    height: 100%;
     background-color: #373737;
     color: white;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;

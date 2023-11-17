@@ -3,7 +3,7 @@ from typing import Optional, Callable, Tuple
 from functools import partial
 import traceback
 
-from reactpy import component, html, use_state
+from reactpy import component, html, use_state, event
 
 from widgets import cabinet
 
@@ -66,14 +66,23 @@ def VisualLab():
         )
         cabinets.append(cabinet.Cabinet(details))
 
+    def clear_focused_cell(_):
+        set_focused_cell(None)
+
     return html.div(
-        html.h1(
-            {'style': 'text-align: center; margin: 50px'},
-            'Visual Lab!'
-        ),
+        {
+            'class_name': 'visual-lab',
+            'onclick': clear_focused_cell,
+        },
         html.div(
-            {'style': 'display: flex; flex-direction: row;'
-                      'justify-content: center'},
-            *cabinets,
-        ),
+            html.h1(
+                {'style': 'text-align: center; padding: 50px'},
+                'Visual Lab!'
+            ),
+            html.div(
+                {'style': 'display: flex; flex-direction: row;'
+                        'justify-content: center'},
+                *cabinets,
+            ),
+        )
     )
