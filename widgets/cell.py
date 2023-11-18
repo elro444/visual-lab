@@ -74,12 +74,12 @@ def Cell(details: CellDetails):
     )
 
     if details.show_tooltip or details.show_popup:
-        return CellTooltip(details, hoverables=[cell])
+        return html.div(cell, CellTooltip(details))
     return cell
 
 
 @component
-def CellTooltip(details: CellDetails, hoverables):
+def CellTooltip(details: CellDetails):
     tooltip = html.div(
         {'style': {'width': '130px'}},
         f"Device at {details.cabinet}-{details.number} has status ",
@@ -88,4 +88,4 @@ def CellTooltip(details: CellDetails, hoverables):
             details.status,
         )
     )
-    return Tooltip(tooltip, hoverables)
+    return Tooltip(tooltip)
