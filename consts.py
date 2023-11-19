@@ -1,13 +1,20 @@
+class Status:
+    GOOD = 'good'
+    DOWN = 'down'
+    UNKNOWN = 'unknown-device'
+    BROKEN = 'broken'
+    MISCONFIGURED = 'misconfigured'
+
 STATUSES = \
-    ['good'] * 20 + \
-    ['down'] * 2 + \
-    ['unknown-device'] * 5 + \
-    ['broken', 'misconfigured']
+    [Status.GOOD] * 20 + \
+    [Status.DOWN] * 2 + \
+    [Status.UNKNOWN] * 5 + \
+    [Status.BROKEN, Status.MISCONFIGURED]
 
 COLORS = {
-    'good': '#72fa93',
-    'down': '#e45f2b',
-    'unknown-device': '#f6c445',
-    'broken': '#e39af0',
-    'misconfigured': '#9ac1f0',
+    Status.GOOD: '#72fa93',
+    Status.DOWN: '#e45f2b',
+    Status.UNKNOWN: '#f6c445',
+    Status.BROKEN: '#e39af0',
+    Status.MISCONFIGURED: '#9ac1f0',
 }
