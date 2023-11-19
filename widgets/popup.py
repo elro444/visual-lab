@@ -2,6 +2,7 @@ from reactpy import component, html
 from reactpy.types import Component
 from typing import TypeVar, Callable, cast
 from . import cell
+from .tooltip import PopupButton
 from consts import Status, COLORS
 from css_utils import colorize
 
@@ -55,4 +56,24 @@ def _popup_down(details: 'cell.CellDetails'):
         f'The interface in cell {details.cell_id} is ',
         colorize('DOWN', COLORS[Status.DOWN]),
         '. Please make sure the cable is connected!',
+    )
+
+@popup_maker(Status.MISCONFIGURED)
+@component
+def _popup_misconfigured(details: 'cell.CellDetails'):
+    # TODO: Improve the styling on the button in this component
+    def quick_fix(_):
+        # TODO: Reconfigure the DB
+        ...
+
+    return html.div(
+        {
+            'style': {
+                'width': POPUP_WIDTH,
+            },
+        },
+        # TODO: Fix this message
+        f'Device #100 is in this cell, but is configured to cell A-1.\n',
+        f'Click the button below to move it to {details.cell_id}\n',
+        PopupButton('Quick Fix', quick_fix),
     )

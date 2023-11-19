@@ -1,3 +1,4 @@
+from typing import Callable
 from reactpy import html, component
 from reactpy.types import Component
 
@@ -18,4 +19,19 @@ def Tooltip(tooltip_content: Component, class_name=TOOLTIP):
             },
             tooltip_content
         )
+    )
+
+
+@component
+def PopupButton(text: str, onclick: Callable, override_style=None):
+    style = {}
+    if override_style:
+        style.update(override_style)
+    return html.span(
+        {
+            'class_name': 'vl-popup-button',
+            'onclick': onclick,
+            'style': style,
+        },
+        f' {text} '
     )
