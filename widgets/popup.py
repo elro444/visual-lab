@@ -2,9 +2,10 @@ from reactpy import component, html
 from reactpy.types import Component
 from typing import TypeVar, Callable, cast
 from . import cell
+from consts import Status, COLORS
 from css_utils import colorize
 
-POPUP_WIDTH = '200px'
+POPUP_WIDTH = '250px'
 
 PopupMaker = TypeVar(
     'PopupMaker',
@@ -41,3 +42,17 @@ def popup_maker(status: str) -> Callable[[PopupMaker], PopupMaker]:
         return func
     return wrapper
 
+
+@popup_maker(Status.DOWN)
+@component
+def _popup_down(details: 'cell.CellDetails'):
+    return html.div(
+        {
+            'style': {
+                'width': POPUP_WIDTH,
+            },
+        },
+        f'The interface in cell {details.cell_id} is ',
+        colorize('DOWN', COLORS[Status.DOWN]),
+        '. Please make sure the cable is connected!',
+    )

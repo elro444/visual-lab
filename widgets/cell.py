@@ -27,6 +27,10 @@ class CellDetails:
     on_click: Callable[[], None]
     on_hover: Callable[[bool], None]
 
+    @property
+    def cell_id(self) -> str:
+        return f'{self.cabinet}-{self.number}'
+
 
 @component
 def StatusBar(delay: float, should_animate: bool):
