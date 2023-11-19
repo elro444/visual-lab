@@ -3,8 +3,9 @@ from dataclasses import dataclass
 
 from reactpy import html, component, use_effect, use_ref, Ref, event
 
-from css_utils import grid_position
-from .tooltip import Tooltip
+from css_utils import grid_position, colorize
+from . import tooltip
+from .popup import generate_popup
 from consts import COLORS
 
 STATUS_BAR_DELAY_OFFSET = 0.17  # trust me on this one
@@ -25,6 +26,10 @@ class CellDetails:
     show_tooltip: bool
     on_click: Callable[[], None]
     on_hover: Callable[[bool], None]
+
+    @property
+    def cell_id(self) -> str:
+        return f'{self.cabinet}-{self.number}'
 
 
 @component
@@ -70,22 +75,37 @@ def Cell(details: CellDetails):
             {'class_name': 'cell-text'},
             details.number
         ),
-        StatusBar(STATUS_BAR_DELAY_OFFSET + details.delay, should_animate.current)
+        StatusBar(STATUS_BAR_DELAY_OFFSET +
+                  details.delay, should_animate.current)
     )
+    popup = None
+    if details.show_popup:
+        popup = CellPopup(details)
+    elif details.show_tooltip:
+        popup = CellTooltip(details)
+    if popup is not None:
+        return html.div(cell, popup)
 
-    if details.show_tooltip or details.show_popup:
-        return CellTooltip(details, hoverables=[cell])
     return cell
 
 
 @component
-def CellTooltip(details: CellDetails, hoverables):
-    tooltip = html.div(
+def CellPopup(details: CellDetails):
+    contents = html.div(
+        {
+            # Clicking the popup should not make it disappear
+            'onclick': event(lambda _: None, stop_propagation=True),
+        },
+        generate_popup(details),
+    )
+    return tooltip.Tooltip(contents, class_name=tooltip.POPUP)
+
+
+@component
+def CellTooltip(details: CellDetails):
+    contents = html.div(
         {'style': {'width': '130px'}},
         f"Device at {details.cabinet}-{details.number} has status ",
-        html.span(
-            {'style': {'color': COLORS[details.status]}},
-            details.status,
-        )
+        colorize(details.status, COLORS[details.status]),
     )
-    return Tooltip(tooltip, hoverables)
+    return tooltip.Tooltip(contents)

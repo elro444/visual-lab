@@ -138,7 +138,35 @@ div#app {
     position: absolute;
     left: -100%;
     padding: 10px;
+    z-index: 2;
+}
+
+.vl-popup {
+    border-radius: 5px;
+    background-color: #101014;
+    box-shadow: 0px 0px 5px #c5ced1;
+
+    position: absolute;
+    left: -100%;
+    padding: 10px;
     z-index: 1;
+}
+
+.vl-popup-button {
+    border-radius: 5px;
+    background-color: #1f242e;
+    outline-style: solid;
+    outline-width: 1px;
+    outline-color: #ffffffaa;
+    padding: 2px;
+}
+
+.vl-popup-button:hover {
+    background-color: #161920;
+    outline-style: solid;
+    outline-width: 1px;
+    outline-color: #ffffff33;
+    padding: 2px;
 }
 
 @keyframes appear-vertical {

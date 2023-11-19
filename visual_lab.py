@@ -68,6 +68,7 @@ def VisualLab():
 
     def clear_focused_cell(_):
         set_focused_cell(None)
+        set_hovered_cell(None)
 
     return html.div(
         {
