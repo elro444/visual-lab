@@ -72,10 +72,31 @@ def Cell(details: CellDetails):
         ),
         StatusBar(STATUS_BAR_DELAY_OFFSET + details.delay, should_animate.current)
     )
+    popup = None
+    if details.show_popup:
+        popup = CellPopup(details)
+    elif details.show_tooltip:
+        popup = CellTooltip(details)
+    if popup is not None:
+        return html.div(cell, popup)
 
-    if details.show_tooltip or details.show_popup:
-        return html.div(cell, CellTooltip(details))
     return cell
+
+
+@component
+def CellPopup(details: CellDetails):
+    tooltip = html.div(
+        {
+            'style': {'width': '130px'},
+            'onclick': event(lambda _: None, stop_propagation=True), # Clicking the popup should not make it disappear
+        },
+        f"Device at {details.cabinet}-{details.number} has status ",
+        html.span(
+            {'style': {'color': COLORS[details.status]}},
+            details.status,
+        )
+    )
+    return Tooltip(tooltip)
 
 
 @component
