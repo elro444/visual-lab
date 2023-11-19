@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from reactpy import html, component, use_effect, use_ref, Ref, event
 
 from css_utils import grid_position
-from .tooltip import Tooltip
+from . import tooltip
 from consts import COLORS
 
 STATUS_BAR_DELAY_OFFSET = 0.17  # trust me on this one
@@ -85,7 +85,7 @@ def Cell(details: CellDetails):
 
 @component
 def CellPopup(details: CellDetails):
-    tooltip = html.div(
+    contents = html.div(
         {
             'style': {'width': '130px'},
             'onclick': event(lambda _: None, stop_propagation=True), # Clicking the popup should not make it disappear
@@ -96,12 +96,12 @@ def CellPopup(details: CellDetails):
             details.status,
         )
     )
-    return Tooltip(tooltip)
+    return tooltip.Tooltip(contents, class_name=tooltip.POPUP)
 
 
 @component
 def CellTooltip(details: CellDetails):
-    tooltip = html.div(
+    contents = html.div(
         {'style': {'width': '130px'}},
         f"Device at {details.cabinet}-{details.number} has status ",
         html.span(
@@ -109,4 +109,4 @@ def CellTooltip(details: CellDetails):
             details.status,
         )
     )
-    return Tooltip(tooltip)
+    return tooltip.Tooltip(contents)

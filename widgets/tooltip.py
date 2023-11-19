@@ -1,9 +1,11 @@
 from reactpy import html, component
 from reactpy.types import Component
 
+TOOLTIP = 'vl-tooltip'
+POPUP = 'vl-popup'
 
 @component
-def Tooltip(tooltip_content: Component):
+def Tooltip(tooltip_content: Component, class_name=TOOLTIP):
     return html.div(
         {
             'style': {
@@ -12,7 +14,7 @@ def Tooltip(tooltip_content: Component):
         },
         html.div(
             {
-                'class_name': 'vl-tooltip'
+                'class_name': class_name
             },
             tooltip_content
         )
